@@ -13,15 +13,15 @@
 #Mac: ~/Library/Ethereum/keystore
 
 #путь до директории tmp
-fromBTG="C:/Users/User/Desktop/q"
-fromBTH="C:/Users/User/Desktop/q"
-fromBTC="C:/Users/User/Desktop/q"
-fromLTC="C:/Users/User/Desktop/q"
+fromBTG=""
+fromBTH=""
+fromBTC=""
+fromLTC=""
 #путь до директории keystore (включительно)
-fromETH="C:/Users/User/Desktop/q"
-fromETC="C:/Users/User/Desktop/q"
+fromETH=""
+fromETC=""
 #путь до директории с бекапами на сервере
-to="C:/Users/User/Desktop/w/backup"
+to=""
 filename=backupsTime.txt
 
 containerNameBitcoinGold="bitcoin-gold"
@@ -50,22 +50,17 @@ function backupWallet {
 	if [[ $1 = 'bitcoin-cash' ]]
 	then
 		NodeResponse=$(bitcoin-cli -regtest -datadir=$datadirBTH getwalletinfo)
-		#NodeResponse=$(docker exec --user bitcoin bitcoin-cash bitcoin-cli -regtest getwalletinfo)
 	elif [[ $1 = 'bitcoin' ]]
 	then
 		NodeResponse=$(bitcoin-cli -datadir=$datadirBTC getwalletinfo)
-		#NodeResponse=$(docker exec bitcoin bitcoin-cli -datadir=1 getwalletinfo)
 	elif [[ $1 = 'bitcoin-gold' ]]
 	then
-		NodeResponse=$(bgold-cli -regtest -datadir=$datadirBTG getwalletinfo)
-		#NodeResponse=$(docker exec --user bitcoingold bitcoin-gold bgold-cli -regtest getwalletinfo)	
+		NodeResponse=$(bgold-cli -regtest -datadir=$datadirBTG getwalletinfo)	
 	elif [[ $1 = 'litecoin' ]]
 	then
 		NodeResponse=$(litecoin-cli -regtest -datadir=$datadirLTC getwalletinfo)
-		#NodeResponse=$(docker exec --user litecoin litecoin litecoin-cli -regtest getwalletinfo)
 	fi
-	#local NodeResponse=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST --data '{"method": "getwalletinfo", "params": [] }' $1)
-	#local HTTP_BODY=$(echo $NodeResponse | sed -e 's/HTTPSTATUS\:.*//g')
+	
 	local keypoololdest
 	if [[  $1 = 'bitcoin'  ]]
 	then
@@ -85,32 +80,21 @@ function backupWallet {
 		then
 			dump=$(bitcoin-cli -regtest -datadir=$datadirBTH dumpwallet "tmp/"$date"walletBackup.txt")
 			backup=$(bitcoin-cli -regtest -datadir=$datadirBTH backupwallet "tmp/"$date"walletBackup.dat")
-			#dump=$(docker exec --user bitcoin bitcoin-cash bitcoin-cli -regtest -datadir=$datadirBTH dumpwallet "tmp/"$date"walletBackup.txt")
-			#backup=$(docker exec --user bitcoin bitcoin-cash bitcoin-cli -regtest -datadir=$datadirBTH backupwallet "tmp/"$date"walletBackup.dat")
 		elif [[ $1 = 'bitcoin' ]]
 		then
 			dump=$(bitcoin-cli -datadir=$datadirBTC dumpwallet $date"walletBackup.txt")
 			backup=$(bitcoin-cli -datadir=$datadirBTC backupwallet $date"walletBackup.dat")
-			#dump=$(docker exec bitcoin bitcoin-cli -datadir=$datadirBTC dumpwallet $date"walletBackup.txt")
-			#backup=$(docker exec bitcoin bitcoin-cli -datadir=$datadirBTC backupwallet $date"walletBackup.dat")
 		elif [[ $1 = 'bitcoin-gold' ]]
 		then
 			dump=$(bgold-cli -regtest -datadir=$datadirBTG dumpwallet "tmp/"$date"walletBackup.txt")
 			backup=$(bgold-cli -regtest -datadir=$datadirBTG backupwallet "tmp/"$date"walletBackup.dat")
-			#dump=$(docker exec --user bitcoingold bitcoin-gold bgold-cli -regtest -datadir=$datadirBTG dumpwallet "tmp/"$date"walletBackup.txt")
-			#backup=$(docker exec --user bitcoingold bitcoin-gold bgold-cli -regtest -datadir=$datadirBTG backupwallet "tmp/"$date"walletBackup.dat")
 		elif [[ $1 = 'litecoin' ]]
 		then
 			dump=$(litecoin-cli -regtest -datadir=$datadirLTC dumpwallet "tmp/"$date"walletBackup.txt")
 			backup=$(litecoin-cli -regtest -datadir=$datadirLTC backupwallet "tmp/"$date"walletBackup.dat")
-			#dump=$(docker exec --user litecoin litecoin litecoin-cli -regtest -datadir=$datadirLTC dumpwallet "tmp/"$date"walletBackup.txt")
-			#backup=$(docker exec --user litecoin litecoin litecoin-cli -regtest -datadir=$datadirLTC backupwallet "tmp/"$date"walletBackup.dat")
 		fi
 		
 		#@TODO: настроить scp
-
-		#docker cp $1":tmp/"$date"walletBackup.txt" "C:/Users/User/Desktop/2/"$1
-		#docker cp $1":tmp/"$date"walletBackup.dat" "C:/Users/User/Desktop/2/"$1
 		
 		if [[ $1 = 'bitcoin-cash' ]]
 		then
@@ -190,4 +174,3 @@ for (( i = 0 ; i < 6 ; i++))
 do
 echo ${checkNeedBackupsArray[$i]}" " >> $filename;
 done
-sleep 15
