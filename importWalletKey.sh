@@ -1,9 +1,8 @@
 #!/bin/bash
 
+#after the import wallet may need to do reindex and/or rescan
 #$1 is wallet|keys
 #$2 is btg|btc|bth|ltc|eth|etc
-#$3 is path to wallet.dat or keys
-#$4 is path to node (to regtest)
 
 dirWalletBackup="C:/Users/User/Desktop/script/btg/backups"
 
@@ -16,10 +15,10 @@ dirNodeLTC="C:/Users/User/Desktop/script/btg/node"
 dirKeystoreETC="C:/Users/User/Desktop/script/btg/node/ethereum-classic/keystore"
 dirKeystoreETH="C:/Users/User/Desktop/script/btg/node/ethereum/keystore"
 
-#dirWalletBTG="C:/Users/User/Desktop/script/btg/node/bitcoingold/.bitcoingold/regtest"
-#dirWalletBTC="C:/Users/User/Desktop/script/btg/node/bitcoin/.bitcoin/regtest"
-#dirWalletBTH="C:/Users/User/Desktop/script/btg/node/bitcoincash/.bitcoincash/regtest"
-#dirWalletLTC="C:/Users/User/Desktop/script/btg/node/litecoin/.litecoin/regtest"
+dirWalletBTG="C:/Users/User/Desktop/script/btg/node/bitcoingold/.bitcoingold/regtest"
+dirWalletBTC="C:/Users/User/Desktop/script/btg/node/bitcoin/.bitcoin/regtest"
+dirWalletBTH="C:/Users/User/Desktop/script/btg/node/bitcoincash/.bitcoincash/regtest"
+dirWalletLTC="C:/Users/User/Desktop/script/btg/node/litecoin/.litecoin/regtest"
 
 nameBTG="bitcoin-gold"
 nameBTC="bitcoin"
@@ -31,14 +30,10 @@ datadirBTC=""
 datadirBTH=""
 datadirLTC=""
 
-cliBTG="docker exec --user bitcoingold bitcoin-gold bgold-cli -regtest"
-cliBTC="docker exec bitcoin bitcoin-cli"
-cliBTH="docker exec --user bitcoin bitcoin-cash bitcoin-cli -regtest"
-cliLTC="docker exec --user litecoin litecoin litecoin-cli -regtest"
-#cliBTG="bgold-cli -regtest -datadir=$datadirBTG"
-#cliBTC="bitcoin-cli -datadir=$datadirBTC"
-#cliBTH="bitcoin-cli -regtest -datadir=$datadirBTH"
-#cliLTC="litecoin-cli -regtest -datadir=$datadirLTC"
+cliBTG="bgold-cli -regtest -datadir=$datadirBTG"
+cliBTC="bitcoin-cli -datadir=$datadirBTC"
+cliBTH="bitcoin-cli -regtest -datadir=$datadirBTH"
+cliLTC="litecoin-cli -regtest -datadir=$datadirLTC"
 
 #$1 = btg|btc|bth|ltc
 #$2 = $dirWalletBackup
@@ -46,7 +41,6 @@ cliLTC="docker exec --user litecoin litecoin litecoin-cli -regtest"
 function importKeysBitFork {
 		walletLatest=$(ls -t $2"/"$1 | grep txt | head -1)
 		strInFile=$(wc -l $2"/"$1"/"$walletLatest | awk '{print $1}')
-		#> $dirNodeBTG"/testfile.txt"  #tmp
 		count=0
 		let "lastKeyNum = strInFile - 2"
 		while read line
@@ -63,10 +57,8 @@ function importKeysBitFork {
 				then
 					account=$(echo $dopParametr | cut -d'=' -f 2)
 					$3 importprivkey $privatKey $account
-					#echo $privatKey" account="$account >> $dirNodeBTG"/testfile.txt"  #tmp
 				else
 					$3 importprivkey $privatKey
-					#echo $privatKey >> $dirNodeBTG"/testfile.txt"  #tmp
 				fi
 			fi
 			let "count += 1"
@@ -81,22 +73,18 @@ then
 	then
 		walletLatest=$(ls -t $dirWalletBackup"/bitcoin-gold" | grep dat | head -1)
 		scp $dirWalletBackup"/bitcoin-gold/"$walletLatest $dirWalletBTG"/wallet.dat" > /dev/null 2>&1
-		#reindex node
 	elif [[ $2 = "btc" ]]
 	then
 		walletLatest=$(ls -t $dirWalletBackup"/bitcoin" | grep dat | head -1)
 		scp $dirWalletBackup"/bitcoin/"$walletLatest $dirWalletBTC"/wallet.dat" > /dev/null 2>&1
-		#reindex node
 	elif [[ $2 = "bth" ]]
 	then
 		walletLatest=$(ls -t $dirWalletBackup"/bitcoin-cash" | grep dat | head -1)
 		scp $dirWalletBackup"/bitcoin-cash/"$walletLatest $dirWalletBTH"/wallet.dat" > /dev/null 2>&1
-		#reindex node
 	elif [[ $2 = "ltc" ]]
 	then
 		walletLatest=$(ls -t $dirWalletBackup"/litecoin" | grep dat | head -1)
 		scp $dirWalletBackup"/litecoin/"$walletLatest $dirWalletLTC"/wallet.dat" > /dev/null 2>&1
-		#reindex node
 	else
 		echo "incorrect second parametr "$2 
 	fi
